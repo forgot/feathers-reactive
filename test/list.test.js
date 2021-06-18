@@ -27,6 +27,7 @@ describe('reactive lists', () => {
         service.create({
           text: 'A test message'
         }).then(() => done());
+
       });
 
       baseTests('id');
