@@ -33,7 +33,7 @@ declare namespace FeathersReactive {
 
 declare module '@feathersjs/feathers' {
   // interface ServiceAddons<T> {
-  interface ServiceAddons<A = Application<any, any>, S = Service<any, any>, T> {
+  interface ServiceAddons<A = Application, S = Service<any, any>> {
     watch(options?: Partial<FeathersReactive.Options>): ReactiveService<T>;
     // rx(options?: Partial<FeathersReactive.Options>): Service<T>;
     rx(options?: Partial<FeathersReactive.Options>): Service;
