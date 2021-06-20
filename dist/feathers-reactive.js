@@ -243,7 +243,7 @@ function FeathersRx() {
       find: {},
       get: {}
     };
-    app.methods.forEach(function (method) {
+    Object.keys(service).forEach(function (method) {
       if (typeof service[method] === 'function') {
         reactiveMethods[method] = method === 'find' ? (0, _list.default)(options) : (0, _resource.default)(options, method);
       }
@@ -281,7 +281,7 @@ function FeathersRx() {
       }
     }; // get the extended service object
 
-    var newService = service.mixin(mixin); // workaround for Firefox
+    var newService = Object.assign(service, mixin); // workaround for Firefox
     // FF defines Object.prototype.watch(), so uberproto doesn't recognize the mixin's .watch()
     // see https://github.com/feathersjs-ecosystem/feathers-reactive/issues/67
 
@@ -537,7 +537,7 @@ module.exports = function () {
 
 var _sift = _interopRequireDefault(__webpack_require__(/*! sift */ "./node_modules/sift/es5m/index.js"));
 
-var _utils = __webpack_require__(/*! @feathersjs/commons/lib/utils */ "./node_modules/@feathersjs/commons/lib/utils.js");
+var _commons = __webpack_require__(/*! @feathersjs/commons */ "./node_modules/@feathersjs/commons/lib/index.js");
 
 var _adapterCommons = __webpack_require__(/*! @feathersjs/adapter-commons */ "./node_modules/@feathersjs/adapter-commons/lib/index.js");
 
@@ -672,7 +672,7 @@ function siftMatcher(originalQuery) {
     return key.charCodeAt(0) === 36;
   });
 
-  var query = _utils._.omit.apply(_utils._, [originalQuery].concat(_toConsumableArray(keysToOmit)));
+  var query = _commons._.omit.apply(_commons._, [originalQuery].concat(_toConsumableArray(keysToOmit)));
 
   return (0, _sift.default)(query);
 }
@@ -704,10 +704,11 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.filterQuery = exports.OPERATORS = exports.FILTERS = void 0;
 
 var commons_1 = __webpack_require__(/*! @feathersjs/commons */ "./node_modules/@feathersjs/commons/lib/index.js");
 
-var errors_1 = __webpack_require__(/*! @feathersjs/errors */ "./node_modules/@feathersjs/errors/lib/index.js");
+var errors_1 = __webpack_require__(/*! @feathersjs/errors */ "./node_modules/@feathersjs/adapter-commons/node_modules/@feathersjs/errors/lib/index.js");
 
 function parse(number) {
   if (typeof number !== 'undefined') {
@@ -720,8 +721,9 @@ function parse(number) {
 
 
 function getLimit(limit, paginate) {
-  if (paginate && paginate.default) {
-    var lower = typeof limit === 'number' && !isNaN(limit) ? limit : paginate.default;
+  if (paginate && (paginate.default || paginate.max)) {
+    var base = paginate.default || 0;
+    var lower = typeof limit === 'number' && !isNaN(limit) ? limit : base;
     var upper = typeof paginate.max === 'number' ? paginate.max : Number.MAX_VALUE;
     return Math.min(lower, upper);
   }
@@ -824,11 +826,7 @@ function filterQuery(query) {
   return result;
 }
 
-exports.default = filterQuery;
-
-if (true) {
-  module.exports = Object.assign(filterQuery, module.exports);
-}
+exports.filterQuery = filterQuery;
 
 /***/ }),
 
@@ -854,29 +852,63 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-function __export(m) {
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __exportStar = this && this.__exportStar || function (m, exports) {
   for (var p in m) {
-    if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+    if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
   }
-}
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.select = exports.OPERATORS = exports.FILTERS = exports.filterQuery = exports.AdapterService = void 0;
 
 var commons_1 = __webpack_require__(/*! @feathersjs/commons */ "./node_modules/@feathersjs/commons/lib/index.js");
 
 var service_1 = __webpack_require__(/*! ./service */ "./node_modules/@feathersjs/adapter-commons/lib/service.js");
 
-exports.AdapterService = service_1.AdapterService;
+Object.defineProperty(exports, "AdapterService", {
+  enumerable: true,
+  get: function get() {
+    return service_1.AdapterService;
+  }
+});
 
 var filter_query_1 = __webpack_require__(/*! ./filter-query */ "./node_modules/@feathersjs/adapter-commons/lib/filter-query.js");
 
-exports.filterQuery = filter_query_1.default;
-exports.FILTERS = filter_query_1.FILTERS;
-exports.OPERATORS = filter_query_1.OPERATORS;
+Object.defineProperty(exports, "filterQuery", {
+  enumerable: true,
+  get: function get() {
+    return filter_query_1.filterQuery;
+  }
+});
+Object.defineProperty(exports, "FILTERS", {
+  enumerable: true,
+  get: function get() {
+    return filter_query_1.FILTERS;
+  }
+});
+Object.defineProperty(exports, "OPERATORS", {
+  enumerable: true,
+  get: function get() {
+    return filter_query_1.OPERATORS;
+  }
+});
 
-__export(__webpack_require__(/*! ./sort */ "./node_modules/@feathersjs/adapter-commons/lib/sort.js")); // Return a function that filters a result object or array
+__exportStar(__webpack_require__(/*! ./sort */ "./node_modules/@feathersjs/adapter-commons/lib/sort.js"), exports); // Return a function that filters a result object or array
 // and picks only the fields passed as `params.query.$select`
 // and additional `otherFields`
 
@@ -931,19 +963,46 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
 };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.AdapterService = void 0;
 
-var errors_1 = __webpack_require__(/*! @feathersjs/errors */ "./node_modules/@feathersjs/errors/lib/index.js");
+var errors_1 = __webpack_require__(/*! @feathersjs/errors */ "./node_modules/@feathersjs/adapter-commons/node_modules/@feathersjs/errors/lib/index.js");
 
-var filter_query_1 = __importDefault(__webpack_require__(/*! ./filter-query */ "./node_modules/@feathersjs/adapter-commons/lib/filter-query.js"));
+var filter_query_1 = __webpack_require__(/*! ./filter-query */ "./node_modules/@feathersjs/adapter-commons/lib/filter-query.js");
 
 var callMethod = function callMethod(self, name) {
   if (typeof self[name] !== 'function') {
@@ -990,7 +1049,7 @@ var AdapterService = /*#__PURE__*/function () {
         filters: this.options.filters,
         paginate: paginate
       }, opts);
-      var result = filter_query_1.default(query, options);
+      var result = filter_query_1.filterQuery(query, options);
       return Object.assign(result, {
         paginate: paginate
       });
@@ -1026,7 +1085,7 @@ var AdapterService = /*#__PURE__*/function () {
     key: "create",
     value: function create(data, params) {
       if (Array.isArray(data) && !this.allowsMulti('create')) {
-        return Promise.reject(new errors_1.MethodNotAllowed("Can not create multiple entries"));
+        return Promise.reject(new errors_1.MethodNotAllowed('Can not create multiple entries'));
       }
 
       return callMethod(this, '_create', data, params);
@@ -1035,7 +1094,7 @@ var AdapterService = /*#__PURE__*/function () {
     key: "update",
     value: function update(id, data, params) {
       if (id === null || Array.isArray(data)) {
-        return Promise.reject(new errors_1.BadRequest("You can not replace multiple instances. Did you mean 'patch'?"));
+        return Promise.reject(new errors_1.BadRequest('You can not replace multiple instances. Did you mean \'patch\'?'));
       }
 
       return callMethod(this, '_update', id, data, params);
@@ -1044,7 +1103,7 @@ var AdapterService = /*#__PURE__*/function () {
     key: "patch",
     value: function patch(id, data, params) {
       if (id === null && !this.allowsMulti('patch')) {
-        return Promise.reject(new errors_1.MethodNotAllowed("Can not patch multiple entries"));
+        return Promise.reject(new errors_1.MethodNotAllowed('Can not patch multiple entries'));
       }
 
       return callMethod(this, '_patch', id, data, params);
@@ -1053,10 +1112,25 @@ var AdapterService = /*#__PURE__*/function () {
     key: "remove",
     value: function remove(id, params) {
       if (id === null && !this.allowsMulti('remove')) {
-        return Promise.reject(new errors_1.MethodNotAllowed("Can not remove multiple entries"));
+        return Promise.reject(new errors_1.MethodNotAllowed('Can not remove multiple entries'));
       }
 
       return callMethod(this, '_remove', id, params);
+    }
+  }, {
+    key: "setup",
+    value: function setup() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
     }
   }, {
     key: "id",
@@ -1097,6 +1171,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.sorter = exports.compare = exports.compareArrays = exports.compareNSB = void 0;
 
 function compareNSB(a, b) {
   if (a < b) {
@@ -1219,10 +1294,28 @@ exports.compare = compare; // An in-memory sorting function according to the
 // $sort special query parameter
 
 function sorter($sort) {
+  var sortLevels = false; // True if $sort has tags with '.' i.e. '{a: 1, b: -1, "c.x.z": 1}'
+
+  var getVal = function getVal(a, sortKeys) {
+    var keys = sortKeys.map(function (key) {
+      return key;
+    });
+    var val = a;
+
+    do {
+      var key = keys.shift();
+      val = val[key];
+    } while (keys.length);
+
+    return val;
+  };
+
   var criteria = Object.keys($sort).map(function (key) {
     var direction = $sort[key];
+    var keys = key.split('.');
+    sortLevels = keys.length > 1;
     return {
-      key: key,
+      keys: keys,
       direction: direction
     };
   });
@@ -1235,7 +1328,12 @@ function sorter($sort) {
     try {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var criterion = _step.value;
-        compare = criterion.direction * exports.compare(a[criterion.key], b[criterion.key]);
+
+        if (sortLevels) {
+          compare = criterion.direction * exports.compare(getVal(a, criterion.keys), getVal(b, criterion.keys));
+        } else {
+          compare = criterion.direction * exports.compare(a[criterion.keys[0]], b[criterion.keys[0]]);
+        }
 
         if (compare !== 0) {
           return compare;
@@ -1255,10 +1353,10 @@ exports.sorter = sorter;
 
 /***/ }),
 
-/***/ "./node_modules/@feathersjs/commons/lib/hooks.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/@feathersjs/commons/lib/hooks.js ***!
-  \*******************************************************/
+/***/ "./node_modules/@feathersjs/adapter-commons/node_modules/@feathersjs/errors/lib/index.js":
+/*!***********************************************************************************************!*\
+  !*** ./node_modules/@feathersjs/adapter-commons/node_modules/@feathersjs/errors/lib/index.js ***!
+  \***********************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1267,224 +1365,483 @@ exports.sorter = sorter;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _createSuper(Derived) { return function () { var Super = _getPrototypeOf(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
+
+function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var __rest = this && this.__rest || function (s, e) {
+  var t = {};
+
+  for (var p in s) {
+    if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+  }
+
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+  }
+  return t;
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.convert = exports.errors = exports.Unavailable = exports.BadGateway = exports.NotImplemented = exports.GeneralError = exports.TooManyRequests = exports.Unprocessable = exports.LengthRequired = exports.Gone = exports.Conflict = exports.Timeout = exports.NotAcceptable = exports.MethodNotAllowed = exports.NotFound = exports.Forbidden = exports.PaymentError = exports.NotAuthenticated = exports.BadRequest = exports.FeathersError = void 0;
 
-var utils_1 = __webpack_require__(/*! ./utils */ "./node_modules/@feathersjs/commons/lib/utils.js");
+var FeathersError = /*#__PURE__*/function (_Error) {
+  _inherits(FeathersError, _Error);
 
-var _utils_1$_ = utils_1._,
-    each = _utils_1$_.each,
-    pick = _utils_1$_.pick;
-exports.ACTIVATE_HOOKS = utils_1.createSymbol('__feathersActivateHooks');
+  var _super = _createSuper(FeathersError);
 
-function createHookObject(method) {
-  var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var hook = {};
-  Object.defineProperty(hook, 'toJSON', {
-    value: function value() {
-      return pick(this, 'type', 'method', 'path', 'params', 'id', 'data', 'result', 'error');
+  function FeathersError(err, name, code, className, _data) {
+    var _this;
+
+    _classCallCheck(this, FeathersError);
+
+    var msg = typeof err === 'string' ? err : 'Error';
+    var properties = {
+      name: name,
+      code: code,
+      className: className,
+      type: 'FeathersError'
+    };
+
+    if (Array.isArray(_data)) {
+      properties.data = _data;
+    } else if (_typeof(err) === 'object' || _data !== undefined) {
+      var _a = _typeof(err) === 'object' ? err : _data,
+          message = _a.message,
+          errors = _a.errors,
+          rest = __rest(_a, ["message", "errors"]);
+
+      msg = message || msg;
+      properties.errors = errors;
+      properties.data = rest;
     }
-  });
-  return Object.assign(hook, data, {
-    method: method,
 
-    // A dynamic getter that returns the path of the service
-    get path() {
-      var app = data.app,
-          service = data.service;
+    _this = _super.call(this, msg);
+    Object.assign(_assertThisInitialized(_this), properties);
+    return _this;
+  }
 
-      if (!service || !app || !app.services) {
-        return null;
+  _createClass(FeathersError, [{
+    key: "toJSON",
+    value: function toJSON() {
+      var result = {
+        name: this.name,
+        message: this.message,
+        code: this.code,
+        className: this.className
+      };
+
+      if (this.data !== undefined) {
+        result.data = this.data;
       }
 
-      return Object.keys(app.services).find(function (path) {
-        return app.services[path] === service;
-      });
+      if (this.errors !== undefined) {
+        result.errors = this.errors;
+      }
+
+      return result;
     }
+  }]);
 
-  });
-}
+  return FeathersError;
+}( /*#__PURE__*/_wrapNativeSuper(Error));
 
-exports.createHookObject = createHookObject; // Fallback used by `makeArguments` which usually won't be used
+exports.FeathersError = FeathersError;
 
-function defaultMakeArguments(hook) {
-  var result = [];
+var BadRequest = /*#__PURE__*/function (_FeathersError) {
+  _inherits(BadRequest, _FeathersError);
 
-  if (typeof hook.id !== 'undefined') {
-    result.push(hook.id);
+  var _super2 = _createSuper(BadRequest);
+
+  function BadRequest(message, data) {
+    _classCallCheck(this, BadRequest);
+
+    return _super2.call(this, message, 'BadRequest', 400, 'bad-request', data);
   }
 
-  if (hook.data) {
-    result.push(hook.data);
+  return BadRequest;
+}(FeathersError);
+
+exports.BadRequest = BadRequest; // 401 - Not Authenticated
+
+var NotAuthenticated = /*#__PURE__*/function (_FeathersError2) {
+  _inherits(NotAuthenticated, _FeathersError2);
+
+  var _super3 = _createSuper(NotAuthenticated);
+
+  function NotAuthenticated(message, data) {
+    _classCallCheck(this, NotAuthenticated);
+
+    return _super3.call(this, message, 'NotAuthenticated', 401, 'not-authenticated', data);
   }
 
-  result.push(hook.params || {});
+  return NotAuthenticated;
+}(FeathersError);
+
+exports.NotAuthenticated = NotAuthenticated; // 402 - Payment Error
+
+var PaymentError = /*#__PURE__*/function (_FeathersError3) {
+  _inherits(PaymentError, _FeathersError3);
+
+  var _super4 = _createSuper(PaymentError);
+
+  function PaymentError(message, data) {
+    _classCallCheck(this, PaymentError);
+
+    return _super4.call(this, message, 'PaymentError', 402, 'payment-error', data);
+  }
+
+  return PaymentError;
+}(FeathersError);
+
+exports.PaymentError = PaymentError; // 403 - Forbidden
+
+var Forbidden = /*#__PURE__*/function (_FeathersError4) {
+  _inherits(Forbidden, _FeathersError4);
+
+  var _super5 = _createSuper(Forbidden);
+
+  function Forbidden(message, data) {
+    _classCallCheck(this, Forbidden);
+
+    return _super5.call(this, message, 'Forbidden', 403, 'forbidden', data);
+  }
+
+  return Forbidden;
+}(FeathersError);
+
+exports.Forbidden = Forbidden; // 404 - Not Found
+
+var NotFound = /*#__PURE__*/function (_FeathersError5) {
+  _inherits(NotFound, _FeathersError5);
+
+  var _super6 = _createSuper(NotFound);
+
+  function NotFound(message, data) {
+    _classCallCheck(this, NotFound);
+
+    return _super6.call(this, message, 'NotFound', 404, 'not-found', data);
+  }
+
+  return NotFound;
+}(FeathersError);
+
+exports.NotFound = NotFound; // 405 - Method Not Allowed
+
+var MethodNotAllowed = /*#__PURE__*/function (_FeathersError6) {
+  _inherits(MethodNotAllowed, _FeathersError6);
+
+  var _super7 = _createSuper(MethodNotAllowed);
+
+  function MethodNotAllowed(message, data) {
+    _classCallCheck(this, MethodNotAllowed);
+
+    return _super7.call(this, message, 'MethodNotAllowed', 405, 'method-not-allowed', data);
+  }
+
+  return MethodNotAllowed;
+}(FeathersError);
+
+exports.MethodNotAllowed = MethodNotAllowed; // 406 - Not Acceptable
+
+var NotAcceptable = /*#__PURE__*/function (_FeathersError7) {
+  _inherits(NotAcceptable, _FeathersError7);
+
+  var _super8 = _createSuper(NotAcceptable);
+
+  function NotAcceptable(message, data) {
+    _classCallCheck(this, NotAcceptable);
+
+    return _super8.call(this, message, 'NotAcceptable', 406, 'not-acceptable', data);
+  }
+
+  return NotAcceptable;
+}(FeathersError);
+
+exports.NotAcceptable = NotAcceptable; // 408 - Timeout
+
+var Timeout = /*#__PURE__*/function (_FeathersError8) {
+  _inherits(Timeout, _FeathersError8);
+
+  var _super9 = _createSuper(Timeout);
+
+  function Timeout(message, data) {
+    _classCallCheck(this, Timeout);
+
+    return _super9.call(this, message, 'Timeout', 408, 'timeout', data);
+  }
+
+  return Timeout;
+}(FeathersError);
+
+exports.Timeout = Timeout; // 409 - Conflict
+
+var Conflict = /*#__PURE__*/function (_FeathersError9) {
+  _inherits(Conflict, _FeathersError9);
+
+  var _super10 = _createSuper(Conflict);
+
+  function Conflict(message, data) {
+    _classCallCheck(this, Conflict);
+
+    return _super10.call(this, message, 'Conflict', 409, 'conflict', data);
+  }
+
+  return Conflict;
+}(FeathersError);
+
+exports.Conflict = Conflict; // 410 - Gone
+
+var Gone = /*#__PURE__*/function (_FeathersError10) {
+  _inherits(Gone, _FeathersError10);
+
+  var _super11 = _createSuper(Gone);
+
+  function Gone(message, data) {
+    _classCallCheck(this, Gone);
+
+    return _super11.call(this, message, 'Gone', 410, 'gone', data);
+  }
+
+  return Gone;
+}(FeathersError);
+
+exports.Gone = Gone; // 411 - Length Required
+
+var LengthRequired = /*#__PURE__*/function (_FeathersError11) {
+  _inherits(LengthRequired, _FeathersError11);
+
+  var _super12 = _createSuper(LengthRequired);
+
+  function LengthRequired(message, data) {
+    _classCallCheck(this, LengthRequired);
+
+    return _super12.call(this, message, 'LengthRequired', 411, 'length-required', data);
+  }
+
+  return LengthRequired;
+}(FeathersError);
+
+exports.LengthRequired = LengthRequired; // 422 Unprocessable
+
+var Unprocessable = /*#__PURE__*/function (_FeathersError12) {
+  _inherits(Unprocessable, _FeathersError12);
+
+  var _super13 = _createSuper(Unprocessable);
+
+  function Unprocessable(message, data) {
+    _classCallCheck(this, Unprocessable);
+
+    return _super13.call(this, message, 'Unprocessable', 422, 'unprocessable', data);
+  }
+
+  return Unprocessable;
+}(FeathersError);
+
+exports.Unprocessable = Unprocessable; // 429 Too Many Requests
+
+var TooManyRequests = /*#__PURE__*/function (_FeathersError13) {
+  _inherits(TooManyRequests, _FeathersError13);
+
+  var _super14 = _createSuper(TooManyRequests);
+
+  function TooManyRequests(message, data) {
+    _classCallCheck(this, TooManyRequests);
+
+    return _super14.call(this, message, 'TooManyRequests', 429, 'too-many-requests', data);
+  }
+
+  return TooManyRequests;
+}(FeathersError);
+
+exports.TooManyRequests = TooManyRequests; // 500 - General Error
+
+var GeneralError = /*#__PURE__*/function (_FeathersError14) {
+  _inherits(GeneralError, _FeathersError14);
+
+  var _super15 = _createSuper(GeneralError);
+
+  function GeneralError(message, data) {
+    _classCallCheck(this, GeneralError);
+
+    return _super15.call(this, message, 'GeneralError', 500, 'general-error', data);
+  }
+
+  return GeneralError;
+}(FeathersError);
+
+exports.GeneralError = GeneralError; // 501 - Not Implemented
+
+var NotImplemented = /*#__PURE__*/function (_FeathersError15) {
+  _inherits(NotImplemented, _FeathersError15);
+
+  var _super16 = _createSuper(NotImplemented);
+
+  function NotImplemented(message, data) {
+    _classCallCheck(this, NotImplemented);
+
+    return _super16.call(this, message, 'NotImplemented', 501, 'not-implemented', data);
+  }
+
+  return NotImplemented;
+}(FeathersError);
+
+exports.NotImplemented = NotImplemented; // 502 - Bad Gateway
+
+var BadGateway = /*#__PURE__*/function (_FeathersError16) {
+  _inherits(BadGateway, _FeathersError16);
+
+  var _super17 = _createSuper(BadGateway);
+
+  function BadGateway(message, data) {
+    _classCallCheck(this, BadGateway);
+
+    return _super17.call(this, message, 'BadGateway', 502, 'bad-gateway', data);
+  }
+
+  return BadGateway;
+}(FeathersError);
+
+exports.BadGateway = BadGateway; // 503 - Unavailable
+
+var Unavailable = /*#__PURE__*/function (_FeathersError17) {
+  _inherits(Unavailable, _FeathersError17);
+
+  var _super18 = _createSuper(Unavailable);
+
+  function Unavailable(message, data) {
+    _classCallCheck(this, Unavailable);
+
+    return _super18.call(this, message, 'Unavailable', 503, 'unavailable', data);
+  }
+
+  return Unavailable;
+}(FeathersError);
+
+exports.Unavailable = Unavailable;
+exports.errors = {
+  FeathersError: FeathersError,
+  BadRequest: BadRequest,
+  NotAuthenticated: NotAuthenticated,
+  PaymentError: PaymentError,
+  Forbidden: Forbidden,
+  NotFound: NotFound,
+  MethodNotAllowed: MethodNotAllowed,
+  NotAcceptable: NotAcceptable,
+  Timeout: Timeout,
+  Conflict: Conflict,
+  LengthRequired: LengthRequired,
+  Unprocessable: Unprocessable,
+  TooManyRequests: TooManyRequests,
+  GeneralError: GeneralError,
+  NotImplemented: NotImplemented,
+  BadGateway: BadGateway,
+  Unavailable: Unavailable,
+  400: BadRequest,
+  401: NotAuthenticated,
+  402: PaymentError,
+  403: Forbidden,
+  404: NotFound,
+  405: MethodNotAllowed,
+  406: NotAcceptable,
+  408: Timeout,
+  409: Conflict,
+  410: Gone,
+  411: LengthRequired,
+  422: Unprocessable,
+  429: TooManyRequests,
+  500: GeneralError,
+  501: NotImplemented,
+  502: BadGateway,
+  503: Unavailable
+};
+
+function convert(error) {
+  if (!error) {
+    return error;
+  }
+
+  var FeathersError = exports.errors[error.name];
+  var result = FeathersError ? new FeathersError(error.message, error.data) : new Error(error.message || error);
+
+  if (_typeof(error) === 'object') {
+    Object.assign(result, error);
+  }
+
   return result;
 }
 
-exports.defaultMakeArguments = defaultMakeArguments; // Turns a hook object back into a list of arguments
-// to call a service method with
+exports.convert = convert;
 
-function makeArguments(hook) {
-  switch (hook.method) {
-    case 'find':
-      return [hook.params];
+/***/ }),
 
-    case 'get':
-    case 'remove':
-      return [hook.id, hook.params];
+/***/ "./node_modules/@feathersjs/commons/lib/debug.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/@feathersjs/commons/lib/debug.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
-    case 'update':
-    case 'patch':
-      return [hook.id, hook.data, hook.params];
+"use strict";
 
-    case 'create':
-      return [hook.data, hook.params];
-  }
 
-  return defaultMakeArguments(hook);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createDebug = exports.setDebug = exports.noopDebug = void 0;
+var debuggers = {};
+
+function noopDebug() {
+  return function () {};
 }
 
-exports.makeArguments = makeArguments; // Converts different hook registration formats into the
-// same internal format
+exports.noopDebug = noopDebug;
+var defaultInitializer = noopDebug;
 
-function convertHookData(obj) {
-  var hook = {};
-
-  if (Array.isArray(obj)) {
-    hook = {
-      all: obj
-    };
-  } else if (_typeof(obj) !== 'object') {
-    hook = {
-      all: [obj]
-    };
-  } else {
-    each(obj, function (value, key) {
-      hook[key] = !Array.isArray(value) ? [value] : value;
-    });
-  }
-
-  return hook;
-}
-
-exports.convertHookData = convertHookData; // Duck-checks a given object to be a hook object
-// A valid hook object has `type` and `method`
-
-function isHookObject(hookObject) {
-  return _typeof(hookObject) === 'object' && typeof hookObject.method === 'string' && typeof hookObject.type === 'string';
-}
-
-exports.isHookObject = isHookObject; // Returns all service and application hooks combined
-// for a given method and type `appLast` sets if the hooks
-// from `app` should be added last (or first by default)
-
-function getHooks(app, service, type, method) {
-  var appLast = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-  var appHooks = app.__hooks[type][method] || [];
-  var serviceHooks = service.__hooks[type][method] || [];
-
-  if (appLast) {
-    // Run hooks in the order of service -> app -> finally
-    return serviceHooks.concat(appHooks);
-  }
-
-  return appHooks.concat(serviceHooks);
-}
-
-exports.getHooks = getHooks;
-
-function processHooks(hooks, initialHookObject) {
-  var _this = this;
-
-  var hookObject = initialHookObject;
-
-  var updateCurrentHook = function updateCurrentHook(current) {
-    // Either use the returned hook object or the current
-    // hook object from the chain if the hook returned undefined
-    if (current) {
-      if (!isHookObject(current)) {
-        throw new Error("".concat(hookObject.type, " hook for '").concat(hookObject.method, "' method returned invalid hook object"));
-      }
-
-      hookObject = current;
-    }
-
-    return hookObject;
-  }; // Go through all hooks and chain them into our promise
-
-
-  var promise = hooks.reduce(function (current, fn) {
-    // @ts-ignore
-    var hook = fn.bind(_this); // Use the returned hook object or the old one
-
-    return current.then(function (currentHook) {
-      return hook(currentHook);
-    }).then(updateCurrentHook);
-  }, Promise.resolve(hookObject));
-  return promise.then(function () {
-    return hookObject;
-  }).catch(function (error) {
-    // Add the hook information to any errors
-    error.hook = hookObject;
-    throw error;
+function setDebug(debug) {
+  defaultInitializer = debug;
+  Object.keys(debuggers).forEach(function (name) {
+    debuggers[name] = debug(name);
   });
 }
 
-exports.processHooks = processHooks; // Add `.hooks` functionality to an object
+exports.setDebug = setDebug;
 
-function enableHooks(obj, methods, types) {
-  if (typeof obj.hooks === 'function') {
-    return obj;
+function createDebug(name) {
+  if (!debuggers[name]) {
+    debuggers[name] = defaultInitializer(name);
   }
 
-  var hookData = {};
-  types.forEach(function (type) {
-    // Initialize properties where hook functions are stored
-    hookData[type] = {};
-  }); // Add non-enumerable `__hooks` property to the object
-
-  Object.defineProperty(obj, '__hooks', {
-    configurable: true,
-    value: hookData,
-    writable: true
-  });
-  return Object.assign(obj, {
-    hooks: function hooks(allHooks) {
-      var _this2 = this;
-
-      each(allHooks, function (current, type) {
-        // @ts-ignore
-        if (!_this2.__hooks[type]) {
-          throw new Error("'".concat(type, "' is not a valid hook type"));
-        }
-
-        var hooks = convertHookData(current);
-        each(hooks, function (_value, method) {
-          if (method !== 'all' && methods.indexOf(method) === -1) {
-            throw new Error("'".concat(method, "' is not a valid hook method"));
-          }
-        });
-        methods.forEach(function (method) {
-          // @ts-ignore
-          var myHooks = _this2.__hooks[type][method] || (_this2.__hooks[type][method] = []);
-
-          if (hooks.all) {
-            myHooks.push.apply(myHooks, hooks.all);
-          }
-
-          if (hooks[method]) {
-            myHooks.push.apply(myHooks, hooks[method]);
-          }
-        });
-      });
-      return this;
-    }
-  });
+  return function () {
+    return debuggers[name].apply(debuggers, arguments);
+  };
 }
 
-exports.enableHooks = enableHooks;
+exports.createDebug = createDebug;
 
 /***/ }),
 
@@ -1497,44 +1854,6 @@ exports.enableHooks = enableHooks;
 
 "use strict";
 
-
-function __export(m) {
-  for (var p in m) {
-    if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-  }
-}
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var hookUtils = __importStar(__webpack_require__(/*! ./hooks */ "./node_modules/@feathersjs/commons/lib/hooks.js"));
-
-__export(__webpack_require__(/*! ./utils */ "./node_modules/@feathersjs/commons/lib/utils.js"));
-
-exports.hooks = hookUtils;
-
-/***/ }),
-
-/***/ "./node_modules/@feathersjs/commons/lib/utils.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/@feathersjs/commons/lib/utils.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -1552,9 +1871,29 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __exportStar = this && this.__exportStar || function (m, exports) {
+  for (var p in m) {
+    if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+  }
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
-}); // Removes all leading and trailing slashes from a path
+});
+exports.createSymbol = exports.isPromise = exports._ = exports.stripSlashes = void 0; // Removes all leading and trailing slashes from a path
 
 function stripSlashes(name) {
   return name.replace(/^(\/+)|(\/+)$/g, '');
@@ -1674,276 +2013,13 @@ function isPromise(result) {
 
 exports.isPromise = isPromise;
 
-function makeUrl(path) {
-  var app = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var get = typeof app.get === 'function' ? app.get.bind(app) : function () {};
-  var env = get('env') || "development";
-  var host = get('host') || process.env.HOST_NAME || 'localhost';
-  var protocol = env === 'development' || env === 'test' || env === undefined ? 'http' : 'https';
-  var PORT = get('port') || process.env.PORT || 3030;
-  var port = env === 'development' || env === 'test' || env === undefined ? ":".concat(PORT) : '';
-  path = path || '';
-  return "".concat(protocol, "://").concat(host).concat(port, "/").concat(exports.stripSlashes(path));
-}
-
-exports.makeUrl = makeUrl;
-
 function createSymbol(name) {
   return typeof Symbol !== 'undefined' ? Symbol(name) : name;
 }
 
 exports.createSymbol = createSymbol;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../process/browser.js */ "./node_modules/process/browser.js")))
 
-/***/ }),
-
-/***/ "./node_modules/@feathersjs/errors/lib/index.js":
-/*!******************************************************!*\
-  !*** ./node_modules/@feathersjs/errors/lib/index.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")('@feathersjs/errors');
-
-function FeathersError(msg, name, code, className, data) {
-  msg = msg || 'Error';
-  var errors;
-  var message;
-  var newData;
-
-  if (msg instanceof Error) {
-    message = msg.message || 'Error'; // NOTE (EK): This is typically to handle validation errors
-
-    if (msg.errors) {
-      errors = msg.errors;
-    }
-  } else if (_typeof(msg) === 'object') {
-    // Support plain old objects
-    message = msg.message || 'Error';
-    data = msg;
-  } else {
-    // message is just a string
-    message = msg;
-  }
-
-  if (data) {
-    // NOTE(EK): To make sure that we are not messing
-    // with immutable data, just make a copy.
-    // https://github.com/feathersjs/errors/issues/19
-    newData = JSON.parse(JSON.stringify(data));
-
-    if (newData.errors) {
-      errors = newData.errors;
-      delete newData.errors;
-    } else if (data.errors) {
-      // The errors property from data could be
-      // stripped away while cloning resulting newData not to have it
-      // For example: when cloning arrays this property
-      errors = JSON.parse(JSON.stringify(data.errors));
-    }
-  } // NOTE (EK): Babel doesn't support this so
-  // we have to pass in the class name manually.
-  // this.name = this.constructor.name;
-
-
-  this.type = 'FeathersError';
-  this.name = name;
-  this.message = message;
-  this.code = code;
-  this.className = className;
-  this.data = newData;
-  this.errors = errors || {};
-  debug("".concat(this.name, "(").concat(this.code, "): ").concat(this.message));
-  debug(this.errors);
-
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, FeathersError);
-  } else {
-    this.stack = new Error().stack;
-  }
-}
-
-function inheritsFrom(Child, Parent) {
-  Child.prototype = Object.create(Parent.prototype);
-  Child.prototype.constructor = Child;
-}
-
-inheritsFrom(FeathersError, Error); // NOTE (EK): A little hack to get around `message` not
-// being included in the default toJSON call.
-
-Object.defineProperty(FeathersError.prototype, 'toJSON', {
-  value: function value() {
-    return {
-      name: this.name,
-      message: this.message,
-      code: this.code,
-      className: this.className,
-      data: this.data,
-      errors: this.errors
-    };
-  }
-}); // 400 - Bad Request
-
-function BadRequest(message, data) {
-  FeathersError.call(this, message, 'BadRequest', 400, 'bad-request', data);
-}
-
-inheritsFrom(BadRequest, FeathersError); // 401 - Not Authenticated
-
-function NotAuthenticated(message, data) {
-  FeathersError.call(this, message, 'NotAuthenticated', 401, 'not-authenticated', data);
-}
-
-inheritsFrom(NotAuthenticated, FeathersError); // 402 - Payment Error
-
-function PaymentError(message, data) {
-  FeathersError.call(this, message, 'PaymentError', 402, 'payment-error', data);
-}
-
-inheritsFrom(PaymentError, FeathersError); // 403 - Forbidden
-
-function Forbidden(message, data) {
-  FeathersError.call(this, message, 'Forbidden', 403, 'forbidden', data);
-}
-
-inheritsFrom(Forbidden, FeathersError); // 404 - Not Found
-
-function NotFound(message, data) {
-  FeathersError.call(this, message, 'NotFound', 404, 'not-found', data);
-}
-
-inheritsFrom(NotFound, FeathersError); // 405 - Method Not Allowed
-
-function MethodNotAllowed(message, data) {
-  FeathersError.call(this, message, 'MethodNotAllowed', 405, 'method-not-allowed', data);
-}
-
-inheritsFrom(MethodNotAllowed, FeathersError); // 406 - Not Acceptable
-
-function NotAcceptable(message, data) {
-  FeathersError.call(this, message, 'NotAcceptable', 406, 'not-acceptable', data);
-}
-
-inheritsFrom(NotAcceptable, FeathersError); // 408 - Timeout
-
-function Timeout(message, data) {
-  FeathersError.call(this, message, 'Timeout', 408, 'timeout', data);
-}
-
-inheritsFrom(Timeout, FeathersError); // 409 - Conflict
-
-function Conflict(message, data) {
-  FeathersError.call(this, message, 'Conflict', 409, 'conflict', data);
-}
-
-inheritsFrom(Conflict, FeathersError); // 410 - Gone
-
-function Gone(message, data) {
-  FeathersError(this, message, 'Gone', 410, 'gone', data);
-}
-
-inheritsFrom(Gone, FeathersError); // 411 - Length Required
-
-function LengthRequired(message, data) {
-  FeathersError.call(this, message, 'LengthRequired', 411, 'length-required', data);
-}
-
-inheritsFrom(LengthRequired, FeathersError); // 422 Unprocessable
-
-function Unprocessable(message, data) {
-  FeathersError.call(this, message, 'Unprocessable', 422, 'unprocessable', data);
-}
-
-inheritsFrom(Unprocessable, FeathersError); // 429 Too Many Requests
-
-function TooManyRequests(message, data) {
-  FeathersError.call(this, message, 'TooManyRequests', 429, 'too-many-requests', data);
-}
-
-inheritsFrom(TooManyRequests, FeathersError); // 500 - General Error
-
-function GeneralError(message, data) {
-  FeathersError.call(this, message, 'GeneralError', 500, 'general-error', data);
-}
-
-inheritsFrom(GeneralError, FeathersError); // 501 - Not Implemented
-
-function NotImplemented(message, data) {
-  FeathersError.call(this, message, 'NotImplemented', 501, 'not-implemented', data);
-}
-
-inheritsFrom(NotImplemented, FeathersError); // 502 - Bad Gateway
-
-function BadGateway(message, data) {
-  FeathersError.call(this, message, 'BadGateway', 502, 'bad-gateway', data);
-}
-
-inheritsFrom(BadGateway, FeathersError); // 503 - Unavailable
-
-function Unavailable(message, data) {
-  FeathersError.call(this, message, 'Unavailable', 503, 'unavailable', data);
-}
-
-inheritsFrom(Unavailable, FeathersError);
-var errors = {
-  FeathersError: FeathersError,
-  BadRequest: BadRequest,
-  NotAuthenticated: NotAuthenticated,
-  PaymentError: PaymentError,
-  Forbidden: Forbidden,
-  NotFound: NotFound,
-  MethodNotAllowed: MethodNotAllowed,
-  NotAcceptable: NotAcceptable,
-  Timeout: Timeout,
-  Conflict: Conflict,
-  Gone: Gone,
-  LengthRequired: LengthRequired,
-  Unprocessable: Unprocessable,
-  TooManyRequests: TooManyRequests,
-  GeneralError: GeneralError,
-  NotImplemented: NotImplemented,
-  BadGateway: BadGateway,
-  Unavailable: Unavailable,
-  400: BadRequest,
-  401: NotAuthenticated,
-  402: PaymentError,
-  403: Forbidden,
-  404: NotFound,
-  405: MethodNotAllowed,
-  406: NotAcceptable,
-  408: Timeout,
-  409: Conflict,
-  410: Gone,
-  411: LengthRequired,
-  422: Unprocessable,
-  429: TooManyRequests,
-  500: GeneralError,
-  501: NotImplemented,
-  502: BadGateway,
-  503: Unavailable
-};
-
-function convert(error) {
-  if (!error) {
-    return error;
-  }
-
-  var FeathersError = errors[error.name];
-  var result = FeathersError ? new FeathersError(error.message, error.data) : new Error(error.message || error);
-
-  if (_typeof(error) === 'object') {
-    Object.assign(result, error);
-  }
-
-  return result;
-}
-
-module.exports = Object.assign({
-  convert: convert
-}, errors);
+__exportStar(__webpack_require__(/*! ./debug */ "./node_modules/@feathersjs/commons/lib/debug.js"), exports);
 
 /***/ }),
 

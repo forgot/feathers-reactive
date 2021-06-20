@@ -6,7 +6,7 @@
 // TypeScript Version: 2.1
 
 import { Observable, OperatorFunction } from 'rxjs';
-import { Id, NullableId, Paginated, Params, Service } from '@feathersjs/feathers';
+import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers';
 
 declare function FeathersReactive(options: FeathersReactive.Options): () => void;
 export = FeathersReactive;
@@ -34,9 +34,8 @@ declare namespace FeathersReactive {
 declare module '@feathersjs/feathers' {
   // interface ServiceAddons<T> {
   interface ServiceAddons<A = Application, S = Service<any, any>> {
-    watch(options?: Partial<FeathersReactive.Options>): ReactiveService<T>;
-    // rx(options?: Partial<FeathersReactive.Options>): Service<T>;
-    rx(options?: Partial<FeathersReactive.Options>): Service;
+    watch(options?: Partial<FeathersReactive.Options>): ReactiveService<any>;
+    rx(options?: Partial<FeathersReactive.Options>): Service<any>;
   }
 
   interface ReactiveService<T> {
