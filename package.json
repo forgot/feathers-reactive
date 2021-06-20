@@ -57,9 +57,9 @@
     "IE 10"
   ],
   "dependencies": {
-    "@feathersjs/commons": "^4.5.3",
-    "@feathersjs/feathers": "^4.5.3",
-    "@feathersjs/adapter-commons": "^4.5.2",
+    "@feathersjs/commons": "^5.0.0-pre.4",
+    "@feathersjs/feathers": "^5.0.0-pre.4",
+    "@feathersjs/adapter-commons": "^5.0.0-pre.4",
     "@types/feathersjs__feathers": "^3.1.5",
     "debug": "^4.1.1",
     "json-stable-stringify": "^1.0.1",
@@ -73,7 +73,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "@babel/register": "^7.9.0",
-    "@feathersjs/socketio": "^4.5.4",
+    "@feathersjs/socketio": "^5.0.0-pre.4",
     "babel-loader": "^8.1.0",
     "babel-plugin-add-module-exports": "^1.0.2",
     "feathers-memory": "^4.1.0",
